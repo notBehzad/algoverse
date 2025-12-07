@@ -15,11 +15,6 @@ const START_Y = 40;
 Module.onRuntimeInitialized = function() {
     hashTable = new Module.HashTableBackend();
     console.log("Hash WASM Ready");
-    // Pre-populate for visual check
-    hashTable.insert(10);
-    hashTable.insert(20);
-    hashTable.insert(30); 
-    hashTable.insert(5);  
     renderTable();
 };
 

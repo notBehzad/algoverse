@@ -5,13 +5,7 @@ let currentArray = []; // Matches visual state
 
 Module.onRuntimeInitialized = function() {
     heap = new Module.HeapBackend();
-    console.log("Heap Ready");
-    
-    // Initial Data
-    heap.insert(15);
-    heap.insert(30);
-    heap.insert(10); 
-    heap.insert(5);  
+    console.log("Heap Ready"); 
     syncFromBackend();
 };
 

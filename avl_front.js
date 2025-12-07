@@ -7,12 +7,6 @@ Module.onRuntimeInitialized = function() {
     avl = new Module.AVLBackend();
     console.log("AVL WASM Ready");
     
-    // Initial Tree
-    avl.insert(30);
-    avl.insert(20);
-    avl.insert(40);
-    avl.insert(10);
-    avl.insert(25);
     redrawTree();
 };
 
