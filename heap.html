@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Heap Visualizer Fixed</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="heap_style.css">
+</head>
+<body>
+
+    <div class="header">
+        <h1>Binary Heap Visualizer</h1>
+    </div>
+
+    <div class="controls-container">
+        <div class="group switch-group">
+            <div class="toggle-container">
+                <input type="radio" name="heapType" id="minHeap" value="min" checked onclick="handleModeChange(true)">
+                <label for="minHeap">Min Heap</label>
+                <input type="radio" name="heapType" id="maxHeap" value="max" onclick="handleModeChange(false)">
+                <label for="maxHeap">Max Heap</label>
+            </div>
+        </div>
+
+        <div class="group">
+            <input type="number" id="valInput" placeholder="N" onkeydown="if(event.key==='Enter') handleInsert()">
+            <button class="primary" onclick="handleInsert()">Insert</button>
+        </div>
+
+        <div class="group">
+            <button class="danger" onclick="handleExtract()">Extract Root</button>
+        </div>
+
+        <div class="status-bar" id="statusBar">Ready</div>
+    </div>
+
+    <div class="main-stage">
+        <div class="tree-area">
+            <div class="area-label">Tree Structure</div>
+            <svg id="treeSvg" width="100%" height="100%">
+                <defs>
+                    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#00000033"/>
+                    </filter>
+                </defs>
+                <g id="edgesLayer"></g>
+                <g id="nodesLayer"></g>
+            </svg>
+        </div>
+
+        <div class="array-area">
+            <div class="area-label">Array Memory</div>
+            <div class="array-container" id="arrayContainer"></div>
+        </div>
+    </div>
+
+    <script src="heap_core.js"></script>
+    <script src="heap_front.js"></script>
+</body>
+</html>

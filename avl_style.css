@@ -1,0 +1,168 @@
+:root {
+    --bg-color: #f5f5f7;
+    --dark: #1c1c1e;
+    --accent: #007aff;
+    --success: #34c759;
+    --danger: #ff3b30;
+    --font: 'Montserrat', sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    font-family: var(--font);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.header {
+    background: var(--dark);
+    color: white;
+    text-align: center;
+    padding: 15px;
+    font-weight: 700;
+    font-size: 22px;
+}
+
+.controls-container {
+    background: #2c2c2e;
+    padding: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+
+.group {
+    background: rgba(255,255,255,0.08);
+    padding: 8px 15px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.label { color: #8e8e93; font-size: 13px; font-weight: 600; text-transform: uppercase; }
+
+input {
+    background: #3a3a3c;
+    border: none;
+    color: white;
+    padding: 8px;
+    border-radius: 6px;
+    outline: none;
+    font-family: var(--font);
+    width: 60px;
+    text-align: center;
+    font-size: 16px;
+}
+
+button {
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    color: white;
+    transition: transform 0.1s, background 0.2s;
+    font-family: var(--font);
+}
+button:hover { transform: translateY(-1px); }
+button:active { transform: translateY(0); }
+button.primary { background: var(--accent); }
+button.danger { background: var(--danger); }
+
+/* Status Bar */
+.status-bar {
+    color: #e5e5ea;
+    font-size: 14px;
+    font-style: italic;
+    min-width: 200px;
+    text-align: center;
+}
+
+.main-stage {
+    flex: 1;
+    position: relative;
+    background: var(--bg-color);
+}
+
+/* SVG Elements */
+.node-group { 
+    cursor: pointer; 
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
+
+.node-circle {
+    fill: var(--dark);
+    stroke: white;
+    stroke-width: 3px;
+    filter: url(#shadow);
+    transition: fill 0.3s;
+}
+
+.node-text {
+    fill: white;
+    font-weight: 700;
+    font-size: 15px;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+}
+
+.edge {
+    stroke: #d1d1d6;
+    stroke-width: 2;
+    transition: all 0.5s ease;
+}
+
+/* Tooltip */
+.tooltip {
+    position: absolute;
+    background: rgba(28, 28, 30, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.tooltip.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#focusRing {
+    transition: cx 0.4s ease, cy 0.4s ease;
+    pointer-events: none;
+}
+
+/* Add this to style.css of Graph, AVL, Heap, and Hash */
+
+body {
+    /* Start invisible so we can fade in */
+    opacity: 0; 
+    animation: visualizerEntrance 0.6s ease-out forwards;
+}
+
+@keyframes visualizerEntrance {
+    from {
+        opacity: 0;
+        transform: translateY(15px); /* Subtle slide up */
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -1,0 +1,211 @@
+:root {
+    --bg-dark: #0a0a0c;
+    --text-white: #ffffff;
+    --accent: #007aff;
+    --card-bg: rgba(255, 255, 255, 0.03);
+    --card-border: rgba(255, 255, 255, 0.1);
+    --font: 'Montserrat', sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-dark);
+    font-family: var(--font);
+    overflow-x: hidden;
+    color: var(--text-white);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#bgCanvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+}
+
+.content-wrapper {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* Hero */
+.hero {
+    text-align: center;
+    margin-bottom: 60px;
+    animation: fadeInDown 1s ease-out;
+}
+
+.title {
+    font-size: 80px;
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: -2px;
+    background: linear-gradient(to right, #fff, #888);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
+}
+
+.highlight {
+    color: var(--accent);
+    background: none;
+    -webkit-text-fill-color: var(--accent);
+}
+
+.subtitle {
+    font-size: 18px;
+    color: #888;
+    margin-top: 10px;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* Grid */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    width: 90%;
+    max-width: 1200px;
+}
+
+/* The New Simplified Card */
+.card {
+    text-decoration: none;
+    color: white;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 40px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    
+    /* Smooth Transition for the "Lift" */
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                box-shadow 0.4s ease, 
+                border-color 0.4s ease;
+    
+    animation: fadeInUp 1s ease-out backwards;
+}
+
+/* Stagger Animation */
+.card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2) { animation-delay: 0.2s; }
+.card:nth-child(3) { animation-delay: 0.3s; }
+.card:nth-child(4) { animation-delay: 0.4s; }
+
+/* The Hover Effect: Lift Up + Blue Glow */
+.card:hover {
+    transform: translateY(-15px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 122, 255, 0.2);
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.08); /* Slightly lighter */
+}
+
+.card-content {
+    position: relative;
+    z-index: 2;
+}
+
+.icon {
+    font-size: 50px;
+    margin-bottom: 20px;
+    color: var(--accent);
+    text-shadow: 0 0 20px rgba(0, 122, 255, 0.5);
+    transition: transform 0.4s ease;
+}
+
+/* Icon bounces slightly on hover */
+.card:hover .icon {
+    transform: scale(1.1);
+}
+
+.card h2 { margin: 0; font-size: 24px; font-weight: 700; }
+.card p { color: #aaa; font-size: 14px; margin-top: 10px; }
+
+/* Subtle moving shine */
+.shine {
+    position: absolute;
+    top: 0; left: -100%; /* Start off screen */
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-25deg);
+    transition: left 0.5s;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.card:hover .shine {
+    left: 200%; /* Move across the card */
+    transition: left 0.7s ease-in-out;
+}
+
+footer { margin-top: 60px; color: #999999; font-size: 12px; }
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(50px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 900px) {
+    .card-grid { grid-template-columns: repeat(2, 1fr); }
+    .title { font-size: 50px; }
+}
+@media (max-width: 600px) {
+    .card-grid { grid-template-columns: 1fr; }
+}
+
+/* Add to landing.css */
+
+/* 1. Page Entrance: Fade In + Slide Up */
+body {
+    animation: pageEntrance 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+
+@keyframes pageEntrance {
+    from {
+        opacity: 0;
+        transform: scale(0.98) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* 2. Page Exit: Fade Out + Zoom In (The "Portal" Effect) */
+body.exiting {
+    animation: pageExit 0.5s ease-in forwards;
+    pointer-events: none; /* Prevent double clicks */
+}
+
+@keyframes pageExit {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(1.1); /* Zoom in slightly towards the user */
+        filter: blur(5px);
+    }
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AVL Tree Visualizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="avl_style.css">
+</head>
+<body>
+
+    <div class="header">
+        <h1>AVL Tree Visualizer</h1>
+    </div>
+
+    <div class="controls-container">
+        <div class="group">
+            <span class="label">Value:</span>
+            <input type="number" id="valInput" placeholder="N" onkeydown="if(event.key==='Enter') handleInsert()">
+            <button class="primary" onclick="handleInsert()">Insert</button>
+            <button class="danger" onclick="handleDelete()">Delete</button>
+        </div>
+        
+        <div class="status-bar" id="statusBar">
+            Ready to build tree.
+        </div>
+    </div>
+
+    <div class="main-stage">
+        <svg id="treeSvg" width="100%" height="100%">
+            <defs>
+                 <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+                refX="28" refY="3.5" orient="auto" fill="#ccc">
+                <polygon points="0 0, 10 3.5, 0 7" />
+                </marker>
+                <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#00000033"/>
+                </filter>
+            </defs>
+            <g id="edgesLayer"></g>
+            <g id="nodesLayer"></g>
+            <circle id="focusRing" r="28" fill="none" stroke="#007aff" stroke-width="4" opacity="0"></circle>
+        </svg>
+
+        <div id="tooltip" class="tooltip"></div>
+    </div>
+
+    <script src="avl_core.js"></script>
+    <script src="avl_front.js"></script>
+</body>
+</html>

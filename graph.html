@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pro Graph Visualizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="graph_style.css">
+</head>
+<body>
+
+    <div class="header">
+        <h1>Graph Algorithms Pro</h1>
+    </div>
+
+    <div class="controls-container">
+        
+        <div class="group">
+            <span class="label">Node:</span>
+            <input type="number" id="nodeInput" placeholder="ID" onkeydown="if(event.key==='Enter') handleAddNode()">
+            <button onclick="handleAddNode()">Add</button>
+            <button class="danger" onclick="handleRemoveNode()">Del</button>
+        </div>
+
+        <div class="group">
+            <span class="label">Edge:</span>
+            <input type="number" id="uInput" placeholder="From" style="width: 40px;">
+            <input type="number" id="vInput" placeholder="To" style="width: 40px;">
+            <input type="number" id="wInput" placeholder="Wt" value="1" style="width: 30px;">
+            <button onclick="handleAddEdge()">Link</button>
+        </div>
+
+        <div class="group">
+            <span class="label">Algo:</span>
+            <select id="algoSelect">
+                <option value="bfs">BFS</option>
+                <option value="dfs">DFS</option>
+                <option value="dijkstra">Dijkstra</option>
+                <option value="prim">Prim's MST</option>
+            </select>
+            <input type="number" id="startNode" placeholder="Start" style="width: 40px;" value="1">
+            <button class="primary" onclick="runAlgorithm()">Visualize</button>
+        </div>
+    </div>
+
+    <div class="main-stage">
+        
+        <div class="ds-panel">
+            <div class="ds-label">Structure</div>
+            <div class="ds-container" id="dsContainer">
+                <div class="ds-placeholder">Queue/Stack Empty</div>
+            </div>
+        </div>
+
+        <svg id="graphSvg" width="100%" height="100%">
+            <defs>
+                <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="1" dy="2" stdDeviation="2" flood-color="#00000033"/>
+                </filter>
+            </defs>
+            <g id="edgesLayer"></g>
+            <g id="nodesLayer"></g>
+        </svg>
+
+    </div>
+
+    <script src="graph_core.js"></script>
+    <script src="graph_script.js"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+:root {
+    --bg-color: #f5f5f7;
+    --dark: #1c1c1e;
+    --accent: #007aff;
+    --danger: #ff3b30;
+    --font: 'Montserrat', sans-serif;
+}
+body { margin: 0; background: var(--bg-color); font-family: var(--font); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+.header { background: var(--dark); color: white; padding: 15px; text-align: center; font-weight: 700; }
+.controls-container { background: #2c2c2e; padding: 12px; display: flex; justify-content: center; gap: 20px; align-items: center; z-index: 10; }
+.group { background: rgba(255,255,255,0.08); padding: 5px 10px; border-radius: 8px; display: flex; align-items: center; gap: 8px; }
+input { background: #444; border: none; color: white; padding: 8px; border-radius: 6px; width: 60px; text-align: center; font-size: 16px; outline: none; }
+button { padding: 8px 16px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; color: white; transition: 0.2s; }
+button.primary { background: var(--accent); }
+button.danger { background: var(--danger); }
+button:hover { transform: scale(1.05); }
+
+/* Switch */
+.toggle-container { display: flex; background: #444; border-radius: 6px; padding: 2px; }
+.toggle-container input { display: none; }
+.toggle-container label { padding: 5px 10px; cursor: pointer; color: #aaa; font-size: 12px; font-weight: 700; border-radius: 4px; transition: 0.2s; }
+.toggle-container input:checked + label { background: var(--accent); color: white; }
+
+.status-bar { color: #888; font-style: italic; min-width: 150px; text-align: right; }
+
+/* Main Stage */
+.main-stage { flex: 1; display: flex; flex-direction: column; }
+.tree-area { flex: 2; position: relative; background: #fafafa; border-bottom: 1px solid #ddd; }
+.array-area { flex: 1; background: #eee; display: flex; align-items: center; justify-content: center; position: relative; overflow-x: auto; }
+.area-label { position: absolute; top: 10px; left: 10px; font-size: 12px; font-weight: 700; color: #aaa; text-transform: uppercase; }
+
+/* SVG */
+.node-group { transition: transform 0.6s ease; } /* Smooth percolation */
+.node-circle { fill: var(--dark); stroke: white; stroke-width: 2px; filter: url(#shadow); transition: fill 0.3s; }
+.node-text { fill: white; font-weight: 700; font-size: 16px; text-anchor: middle; dominant-baseline: middle; }
+.edge { stroke: #ccc; stroke-width: 2; }
+
+/* Array */
+.array-container { display: flex; gap: 10px; padding: 20px; }
+.array-cell { width: 45px; height: 50px; background: white; border-radius: 8px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: relative; transition: transform 0.6s ease, background 0.3s; }
+.cell-val { font-weight: 700; font-size: 16px; color: var(--dark); }
+.cell-idx { font-size: 10px; color: #888; margin-top: 2px; }
+
+
+/* Add this to style.css of Graph, AVL, Heap, and Hash */
+
+body {
+    /* Start invisible so we can fade in */
+    opacity: 0; 
+    animation: visualizerEntrance 0.6s ease-out forwards;
+}
+
+@keyframes visualizerEntrance {
+    from {
+        opacity: 0;
+        transform: translateY(15px); /* Subtle slide up */
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
