@@ -7,8 +7,6 @@
 using namespace emscripten;
 using namespace std;
 
-// --- Data Structures ---
-
 struct Node {
     int key;
     int height;
@@ -20,8 +18,8 @@ struct Node {
 
 struct LogStep {
     string action; // "search_visit", "insert_node", "highlight_node", "rotate_event", "update_stats"
-    int key;       // The node key involved
-    string info;   // Extra text (e.g. "BF: 2")
+    int key;
+    string info; 
 };
 
 struct NodeData {
@@ -32,12 +30,10 @@ struct NodeData {
     int rightKey; // -1 if null
 };
 
-// --- AVL Logic Class ---
-
 class AVLBackend {
 private:
     Node* root;
-    vector<LogStep> logs; // Record actions here
+    vector<LogStep> logs; 
 
     int height(Node* N) {
         if (N == nullptr) return 0;
@@ -54,14 +50,11 @@ private:
             N->height = 1 + max(height(N->left), height(N->right));
     }
 
-    // --- Rotations ---
-
     Node* rightRotate(Node* y) {
         logs.push_back({"rotate_event", y->key, "Performing Right Rotate (LL Case)"});
         Node* x = y->left;
         Node* T2 = x->right;
 
-        // Perform rotation
         x->right = y;
         y->left = T2;
 
@@ -76,7 +69,6 @@ private:
         Node* y = x->right;
         Node* T2 = y->left;
 
-        // Perform rotation
         y->left = x;
         x->right = T2;
 
@@ -86,10 +78,8 @@ private:
         return y;
     }
 
-    // --- Insert ---
 
     Node* insertNode(Node* node, int key) {
-        // 1. Normal BST Insert
         if (node == nullptr) {
             logs.push_back({"insert_node", key, "Inserted"});
             return new Node(key);
@@ -102,33 +92,25 @@ private:
         else if (key > node->key)
             node->right = insertNode(node->right, key);
         else 
-            return node; // No duplicates allowed
+            return node;
 
-        // 2. Update Height
         updateHeight(node);
 
-        // 3. Get Balance Factor
         int balance = getBalance(node);
         logs.push_back({"update_stats", node->key, "H:" + to_string(node->height) + " BF:" + to_string(balance)});
 
-        // 4. Balance the tree (4 Cases)
-
-        // Left Left Case
         if (balance > 1 && key < node->left->key)
             return rightRotate(node);
 
-        // Right Right Case
         if (balance < -1 && key > node->right->key)
             return leftRotate(node);
 
-        // Left Right Case
         if (balance > 1 && key > node->left->key) {
             logs.push_back({"rotate_event", node->left->key, "Left Rotate (LR Prep)"});
             node->left = leftRotate(node->left);
             return rightRotate(node);
         }
 
-        // Right Left Case
         if (balance < -1 && key < node->right->key) {
             logs.push_back({"rotate_event", node->right->key, "Right Rotate (RL Prep)"});
             node->right = rightRotate(node->right);
@@ -138,7 +120,6 @@ private:
         return node;
     }
 
-    // --- Delete (Min Value Node Helper) ---
     Node* minValueNode(Node* node) {
         Node* current = node;
         while (current->left != nullptr)
@@ -165,7 +146,7 @@ private:
                 } else
                     *root = *temp;
                 delete temp;
-                logs.push_back({"insert_node", key, "Deleted"}); // Reuse action for visual removal
+                logs.push_back({"insert_node", key, "Deleted"});
             } else {
                 Node* temp = minValueNode(root->right);
                 root->key = temp->key;
@@ -180,7 +161,6 @@ private:
         int balance = getBalance(root);
         logs.push_back({"update_stats", root->key, "H:" + to_string(root->height) + " BF:" + to_string(balance)});
 
-        // Balancing (Similar to Insert)
         if (balance > 1 && getBalance(root->left) >= 0)
             return rightRotate(root);
 
@@ -200,7 +180,6 @@ private:
         return root;
     }
 
-    // --- Serialization for JS ---
     void serialize(Node* node, vector<NodeData>& out) {
         if (node == nullptr) return;
         NodeData d;
@@ -230,7 +209,6 @@ public:
         return logs;
     }
 
-    // Returns a flattened list of all nodes so JS can draw the tree easily
     vector<NodeData> getTreeStructure() {
         vector<NodeData> out;
         serialize(root, out);
@@ -238,7 +216,6 @@ public:
     }
 };
 
-// --- Bindings ---
 EMSCRIPTEN_BINDINGS(avl_module) {
     value_object<LogStep>("LogStep")
         .field("action", &LogStep::action)

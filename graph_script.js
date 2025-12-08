@@ -1,17 +1,15 @@
 let cppGraph = null;
 let isAnimating = false;
 
-// State
 let nodes = []; // {id, x, y}
 let edges = []; // {u, v, weight}
 const svgNs = "http://www.w3.org/2000/svg";
 
-// --- Emscripten Init ---
 Module.onRuntimeInitialized = function() {
     cppGraph = new Module.GraphBackend();
     console.log("WASM Loaded");
     
-    // Default Graph
+    // testinnnggg
     addNodeLogic(1, 400, 100);
     addNodeLogic(2, 250, 300);
     addNodeLogic(3, 550, 300);
@@ -20,7 +18,6 @@ Module.onRuntimeInitialized = function() {
     addEdgeLogic(2, 3, 5);
 };
 
-// --- Logic Helpers ---
 function addNodeLogic(id, x, y) {
     if(nodes.find(n => n.id == id)) return;
     nodes.push({ id: parseInt(id), x, y });
@@ -30,14 +27,12 @@ function addNodeLogic(id, x, y) {
 
 function addEdgeLogic(u, v, w) {
     u = parseInt(u); v = parseInt(v); w = parseInt(w);
-    // Avoid duplicates (undirected)
     edges = edges.filter(e => !((e.u === u && e.v === v) || (e.u === v && e.v === u)));
     edges.push({ u, v, w });
     cppGraph.addEdge(u, v, w);
     renderGraph();
 }
 
-// --- UI Handlers ---
 function handleAddNode() {
     const id = document.getElementById('nodeInput').value;
     if(!id) return;
@@ -59,16 +54,13 @@ function handleAddEdge() {
     if(u && v) addEdgeLogic(u, v, w);
 }
 
-// --- SVG Rendering Engine ---
 function renderGraph() {
     const nodesLayer = document.getElementById('nodesLayer');
     const edgesLayer = document.getElementById('edgesLayer');
     
-    // Clear current (inefficient but safe for beginner logic)
     nodesLayer.innerHTML = '';
     edgesLayer.innerHTML = '';
 
-    // Draw Edges
     edges.forEach(e => {
         const n1 = nodes.find(n => n.id === e.u);
         const n2 = nodes.find(n => n.id === e.v);
@@ -77,7 +69,6 @@ function renderGraph() {
         const g = document.createElementNS(svgNs, "g");
         g.setAttribute("id", `edge-${e.u}-${e.v}`);
         
-        // Line
         const line = document.createElementNS(svgNs, "line");
         line.setAttribute("x1", n1.x);
         line.setAttribute("y1", n1.y);
@@ -85,7 +76,6 @@ function renderGraph() {
         line.setAttribute("y2", n2.y);
         line.setAttribute("class", "edge");
         
-        // Weight Label
         const midX = (n1.x + n2.x) / 2;
         const midY = (n1.y + n2.y) / 2;
         
@@ -108,14 +98,12 @@ function renderGraph() {
         edgesLayer.appendChild(g);
     });
 
-    // Draw Nodes
     nodes.forEach(n => {
         const g = document.createElementNS(svgNs, "g");
         g.setAttribute("class", "node-group");
         g.setAttribute("transform", `translate(${n.x}, ${n.y})`);
         g.setAttribute("id", `node-${n.id}`);
         
-        // Drag Events
         g.addEventListener('mousedown', (evt) => startDrag(evt, n));
 
         const circle = document.createElementNS(svgNs, "circle");
@@ -126,7 +114,6 @@ function renderGraph() {
         text.setAttribute("class", "node-text");
         text.textContent = n.id;
 
-        // Badge (Distance/Key) - Hidden initially
         const badgeG = document.createElementNS(svgNs, "g");
         badgeG.setAttribute("class", "node-badge");
         badgeG.setAttribute("transform", "translate(15, -25)");
@@ -152,7 +139,6 @@ function renderGraph() {
     });
 }
 
-// --- Dragging Logic ---
 let dragNode = null;
 function startDrag(evt, node) {
     dragNode = node;
@@ -169,7 +155,7 @@ function onDrag(evt) {
     
     dragNode.x = svgP.x;
     dragNode.y = svgP.y;
-    renderGraph(); // Re-render to update edge positions
+    renderGraph();
 }
 
 function endDrag() {
@@ -178,15 +164,12 @@ function endDrag() {
     document.removeEventListener('mouseup', endDrag);
 }
 
-// --- Animation Engine ---
 function runAlgorithm() {
     if(isAnimating) return;
     
-    // Reset Visuals
     document.querySelectorAll('.node-circle').forEach(el => el.style.fill = '#1c1c1e');
     document.querySelectorAll('.edge').forEach(el => { el.style.stroke = '#d1d1d6'; el.style.strokeWidth = 3; });
     document.getElementById('dsContainer').innerHTML = '<div class="ds-placeholder">Running...</div>';
-    // Hide badges
     document.querySelectorAll('.node-badge').forEach(el => el.style.display = 'none');
 
     const algo = document.getElementById('algoSelect').value;
@@ -206,7 +189,7 @@ function runAlgorithm() {
 function animate(logs) {
     isAnimating = true;
     const dsContainer = document.getElementById('dsContainer');
-    dsContainer.innerHTML = ''; // Clear placeholder
+    dsContainer.innerHTML = '';
     
     let i = 0;
     function step() {
@@ -217,13 +200,11 @@ function animate(logs) {
 
         const log = logs.get(i);
         
-        // 1. Visit Animation
         if(log.action === 'visit') {
             const nodeEl = document.querySelector(`#node-${log.nodeA} .node-circle`);
-            if(nodeEl) nodeEl.style.fill = '#34c759'; // Green success color
+            if(nodeEl) nodeEl.style.fill = '#34c759';
         }
         
-        // 2. Queue/Stack Push
         else if(log.action === 'push') {
             const item = document.createElement('div');
             item.className = 'q-item';
@@ -231,26 +212,19 @@ function animate(logs) {
             item.innerText = log.info ? `${log.nodeA} [${log.info}]` : log.nodeA;
             dsContainer.appendChild(item);
             
-            // Temporary highlight
             const nodeEl = document.querySelector(`#node-${log.nodeA} .node-circle`);
             if(nodeEl && nodeEl.style.fill !== 'rgb(52, 199, 89)') nodeEl.style.fill = '#555';
         }
 
-        // 3. Queue/Stack Pop
         else if(log.action === 'pop') {
-            // Find the visual item in the DS container
-            // For Stack (DFS), we usually pop the last added. For Queue (BFS), the first.
-            // Simplified logic: find the element by ID and remove it.
-            // If multiples exist (re-added in Dijkstra), remove one.
             const items = document.querySelectorAll(`#q-item-${log.nodeA}`);
             if(items.length > 0) {
-                const itemToRemove = items[0]; // Logic matches Queue, tweak for Stack if strictly needed visually
+                const itemToRemove = items[0]; // this visuallizes queue, stack remaining
                 itemToRemove.classList.add('popping');
                 setTimeout(() => itemToRemove.remove(), 300);
             }
         }
 
-        // 4. Update Distance/Key Badge
         else if(log.action === 'update_dist') {
             const badge = document.querySelector(`#node-${log.nodeA} .node-badge`);
             const badgeText = document.querySelector(`#node-${log.nodeA} .node-badge-text`);
@@ -260,15 +234,22 @@ function animate(logs) {
             }
         }
 
-        // 5. Highlight Edge
         else if(log.action === 'highlight_edge') {
-            // Try both directions
             let edgeGroup = document.getElementById(`edge-${log.nodeA}-${log.nodeB}`) || 
                             document.getElementById(`edge-${log.nodeB}-${log.nodeA}`);
             if(edgeGroup) {
                 const line = edgeGroup.querySelector('line');
                 line.style.stroke = '#007aff';
                 line.style.strokeWidth = 6;
+            }
+        }
+        else if(log.action === 'unhighlight_edge') {
+            let edgeGroup = document.getElementById(`edge-${log.nodeA}-${log.nodeB}`) || 
+                            document.getElementById(`edge-${log.nodeB}-${log.nodeA}`);
+            if(edgeGroup) {
+                const line = edgeGroup.querySelector('line');
+                line.style.stroke = '#d1d1d6'; 
+                line.style.strokeWidth = 3;
             }
         }
 

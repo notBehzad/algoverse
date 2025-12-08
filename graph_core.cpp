@@ -9,17 +9,15 @@
 using namespace emscripten;
 using namespace std;
 
-// Structure to pass visual commands to JS
 struct LogStep {
     string action; // "visit", "push", "pop", "update_dist", "highlight_edge"
     int nodeA;
     int nodeB; 
-    string info;   // Text to display (e.g. "Dist: 5")
+    string info;
 };
 
 class GraphBackend {
 private:
-    // Adjacency List: map<Node, vector<pair<Neighbor, Weight>>>
     map<int, vector<pair<int, int>>> adjList;
 
 public:
@@ -40,12 +38,10 @@ public:
 
     void removeVertex(int id) {
         adjList.erase(id);
-        // Manual removal from neighbors without <algorithm>
         for (auto& pair : adjList) {
             vector<std::pair<int, int>>& neighbors = pair.second;
             for (int i = 0; i < neighbors.size(); i++) {
                 if (neighbors[i].first == id) {
-                    // Swap with last and pop back to avoid shifting
                     neighbors[i] = neighbors.back();
                     neighbors.pop_back();
                     i--; 
@@ -54,7 +50,6 @@ public:
         }
     }
 
-    // --- BFS ---
     vector<LogStep> runBFS(int startNode) {
         vector<LogStep> logs;
         if (adjList.find(startNode) == adjList.end()) return logs;
@@ -73,7 +68,7 @@ public:
             logs.push_back({"visit", curr, -1, ""});
 
             vector<pair<int, int>> neighbors = adjList[curr];
-            for (size_t i = 0; i < neighbors.size(); i++) {
+            for (int i = 0; i < neighbors.size(); i++) {
                 int neighbor = neighbors[i].first;
                 if (!visited[neighbor]) {
                     visited[neighbor] = true;
@@ -86,7 +81,6 @@ public:
         return logs;
     }
 
-    // --- DFS ---
     vector<LogStep> runDFS(int startNode) {
         vector<LogStep> logs;
         if (adjList.find(startNode) == adjList.end()) return logs;
@@ -107,7 +101,6 @@ public:
                 logs.push_back({"visit", curr, -1, ""});
 
                 vector<pair<int, int>> neighbors = adjList[curr];
-                // Iterate backwards for stack to process in intuitive order (optional)
                 for (int i = neighbors.size() - 1; i >= 0; i--) {
                     int neighbor = neighbors[i].first;
                     if (!visited[neighbor]) {
@@ -121,10 +114,11 @@ public:
         return logs;
     }
 
-    // --- Dijkstra ---
+
     vector<LogStep> runDijkstra(int startNode) {
         vector<LogStep> logs;
         map<int, int> dist;
+        map<int, int> parent;
         
         for (auto const& [node, neighbors] : adjList) {
             dist[node] = 999999; 
@@ -133,7 +127,6 @@ public:
         dist[startNode] = 0;
         logs.push_back({"update_dist", startNode, -1, "0"});
 
-        // Min-Priority Queue {dist, node}
         priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
         pq.push({0, startNode});
         logs.push_back({"push", startNode, -1, "d:0"});
@@ -153,19 +146,21 @@ public:
                 int weight = edge.second;
 
                 if (dist[u] + weight < dist[v]) {
+                    if (parent.count(v)) {
+                        logs.push_back({"unhighlight_edge", parent[v], v, ""});
+                    }
                     dist[v] = dist[u] + weight;
+                    parent[v] = u;
                     pq.push({dist[v], v});
-                    
                     logs.push_back({"update_dist", v, -1, to_string(dist[v])});
                     logs.push_back({"push", v, -1, "d:" + to_string(dist[v])});
-                    logs.push_back({"highlight_edge", u, v, ""}); // Candidate edge
+                    logs.push_back({"highlight_edge", u, v, ""}); 
                 }
             }
         }
         return logs;
     }
 
-    // --- Prim's (MST) ---
     vector<LogStep> runPrim(int startNode) {
         vector<LogStep> logs;
         map<int, bool> inMST;
@@ -175,7 +170,7 @@ public:
         for (auto const& [node, neighbors] : adjList) {
             key[node] = 999999;
             inMST[node] = false;
-            logs.push_back({"update_dist", node, -1, "Key: INF"}); // Reusing 'update_dist' for Key visual
+            logs.push_back({"update_dist", node, -1, "Key: INF"});
         }
 
         key[startNode] = 0;
@@ -216,7 +211,6 @@ public:
     }
 };
 
-// --- Emscripten Bindings ---
 EMSCRIPTEN_BINDINGS(my_module) {
     value_object<LogStep>("LogStep")
         .field("action", &LogStep::action)

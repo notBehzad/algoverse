@@ -26,7 +26,7 @@ struct BucketSnapshot {
 
 class HashTableBackend {
 private:
-    static const int TABLE_SIZE = 10;
+    const int TABLE_SIZE = 10;
     vector<Node*> table;
     vector<LogStep> logs;
 
@@ -55,17 +55,14 @@ public:
         int index = hashFunction(key);
         logs.push_back({"compute_hash", index, key, "Hash: " + to_string(key) + " % 10 = " + to_string(index)});
 
-        // 1. Check if Empty
         if (table[index] == nullptr) {
             table[index] = new Node(key);
             logs.push_back({"insert", index, key, "Inserted as Head"});
             return logs;
         }
 
-        // 2. Traverse & Check Duplicates
         Node* curr = table[index];
         
-        // Check Head first
         if (curr->key == key) {
             logs.push_back({"duplicate", index, key, "Duplicate Key Ignored"});
             return logs;
@@ -80,7 +77,6 @@ public:
             curr = curr->next;
         }
 
-        // 3. Insert at Tail
         logs.push_back({"traverse", index, curr->key, "Reached Tail"});
         curr->next = new Node(key);
         logs.push_back({"insert", index, key, "Inserted at Tail"});

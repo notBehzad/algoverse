@@ -2,7 +2,6 @@ let hashTable = null;
 const svgNs = "http://www.w3.org/2000/svg";
 let isAnimating = false;
 
-// Layout
 const BUCKET_WIDTH = 60;
 const BUCKET_HEIGHT = 40;
 const CHAIN_W = 50;
@@ -18,13 +17,11 @@ Module.onRuntimeInitialized = function() {
     renderTable();
 };
 
-// --- Rendering ---
 function renderTable() {
     const bucketsLayer = document.getElementById('bucketsLayer');
     const chainsLayer = document.getElementById('chainsLayer');
     const connectorsLayer = document.getElementById('connectorsLayer');
     
-    // Wipe clean
     bucketsLayer.innerHTML = '';
     chainsLayer.innerHTML = '';
     connectorsLayer.innerHTML = '';
@@ -36,7 +33,6 @@ function renderTable() {
         const idx = bucketData.index;
         const keys = bucketData.keys;
 
-        // 1. Draw Bucket
         const bx = START_X + (BUCKET_WIDTH + GAP_X) * idx;
         const by = START_Y;
         
@@ -50,7 +46,6 @@ function renderTable() {
         `;
         bucketsLayer.appendChild(bGroup);
 
-        // 2. Draw Chain
         let prevY = by + BUCKET_HEIGHT;
         let cy = by + BUCKET_HEIGHT + GAP_Y;
 
@@ -58,11 +53,8 @@ function renderTable() {
             const val = keys.get(j);
             const cx = bx + (BUCKET_WIDTH - CHAIN_W) / 2;
             
-            // --- THE FIX: Capture the current Y position for this specific node ---
             const destinationY = cy; 
-            // ---------------------------------------------------------------------
 
-            // Connector
             const line = document.createElementNS(svgNs, "line");
             line.setAttribute("x1", bx + BUCKET_WIDTH/2);
             line.setAttribute("y1", prevY);
@@ -71,13 +63,11 @@ function renderTable() {
             line.setAttribute("class", "connector");
             connectorsLayer.appendChild(line);
 
-            // Node
             const cGroup = document.createElementNS(svgNs, "g");
             cGroup.setAttribute("id", `chain-${idx}-node-${j}`); 
             cGroup.setAttribute("class", "chain-group");
             cGroup.setAttribute("data-val", val);
 
-            // Initial position (pop in effect) - slightly lower
             cGroup.style.transform = `translate(${cx}px, ${cy + 15}px)`;
             cGroup.style.opacity = '0';
             
@@ -87,20 +77,17 @@ function renderTable() {
             `;
             chainsLayer.appendChild(cGroup);
 
-            // Animate to final position using the CAPTURED variable 'destinationY'
             requestAnimationFrame(() => {
                 cGroup.style.transform = `translate(${cx}px, ${destinationY}px)`;
                 cGroup.style.opacity = '1';
             });
 
-            // Update variables for the next iteration
             prevY = cy + CHAIN_H;
             cy += CHAIN_H + GAP_Y;
         }
     }
 }
 
-// --- Handlers ---
 function handleInsert() {
     if(isAnimating) return;
     const val = parseInt(document.getElementById('valInput').value);
@@ -129,7 +116,6 @@ function resetVisuals() {
     document.querySelectorAll('.chain-rect').forEach(r => r.style.stroke = '');
 }
 
-// --- Animation ---
 function animate(logs) {
     isAnimating = true;
     let i = 0;
@@ -138,7 +124,6 @@ function animate(logs) {
     function step() {
         if(i >= logs.size()) {
             isAnimating = false;
-            // Strict sync at end
             setTimeout(renderTable, 300);
             return;
         }
@@ -146,7 +131,6 @@ function animate(logs) {
         const log = logs.get(i);
         sb.innerText = log.info;
 
-        // Reset highlights from previous step
         document.querySelectorAll('.highlight-bucket').forEach(e => e.classList.remove('highlight-bucket'));
         document.querySelectorAll('.chain-rect').forEach(r => {
              if(!r.parentElement.classList.contains('found-node')) r.style.stroke = '';
@@ -164,9 +148,7 @@ function animate(logs) {
             if(node) node.querySelector('rect').style.stroke = '#007aff';
         }
         else if (log.action === "insert") {
-            // Re-render to show new node
             renderTable();
-            // Highlight it
             setTimeout(() => {
                 const node = document.querySelector(`g[data-val="${log.keyVal}"]`);
                 if(node) node.querySelector('rect').style.stroke = '#34c759';

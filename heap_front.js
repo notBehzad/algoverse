@@ -1,7 +1,7 @@
 let heap = null;
 const svgNs = "http://www.w3.org/2000/svg";
 let isAnimating = false;
-let currentArray = []; // Matches visual state
+let currentArray = [];
 
 Module.onRuntimeInitialized = function() {
     heap = new Module.HeapBackend();
@@ -16,8 +16,6 @@ function syncFromBackend() {
     renderTree(currentArray);
     renderArray(currentArray);
 }
-
-// --- Render Logic ---
 
 function renderArray(arr) {
     const container = document.getElementById('arrayContainer');
@@ -44,7 +42,6 @@ function renderTree(arr) {
     const startY = 50;
     const levelHeight = 70;
     
-    // Calculate positions
     const positions = [];
     function calcPos(idx, x, y, offset) {
         if(idx >= arr.length) return;
@@ -54,7 +51,6 @@ function renderTree(arr) {
     }
     calcPos(0, width/2, startY, width/4);
 
-    // Draw Edges
     for(let i=1; i<arr.length; i++) {
         const p = Math.floor((i-1)/2);
         const start = positions[p];
@@ -67,13 +63,12 @@ function renderTree(arr) {
         edgesLayer.appendChild(line);
     }
 
-    // Draw Nodes
     arr.forEach((val, i) => {
         const pos = positions[i];
         const g = document.createElementNS(svgNs, "g");
         g.setAttribute("transform", `translate(${pos.x}, ${pos.y})`);
         g.setAttribute("class", "node-group");
-        g.setAttribute("id", `node-${i}`); // CRITICAL: ID is based on INDEX
+        g.setAttribute("id", `node-${i}`);
 
         const c = document.createElementNS(svgNs, "circle");
         c.setAttribute("r", 22);
@@ -89,7 +84,6 @@ function renderTree(arr) {
     });
 }
 
-// --- Handlers ---
 function handleModeChange(isMin) {
     if(isAnimating) return;
     heap.setMode(isMin);
@@ -111,7 +105,6 @@ function handleExtract() {
     animate(logs);
 }
 
-// --- Animation Engine ---
 function animate(logs) {
     isAnimating = true;
     let i = 0;
@@ -121,7 +114,7 @@ function animate(logs) {
         if(i >= logs.size()) {
             isAnimating = false;
             sb.innerText = "Operation Complete";
-            syncFromBackend(); // Final strict sync
+            syncFromBackend();
             return;
         }
 
@@ -129,27 +122,23 @@ function animate(logs) {
         sb.innerText = log.info;
 
         if (log.action === "insert") {
-            // Logically update our JS mirror so render works
-            currentArray.push(log.indexB); // indexB stores value here
+            currentArray.push(log.indexB);
             highlight(currentArray.length - 1, '#34c759');
             renderTree(currentArray);
             renderArray(currentArray);
         }
         else if (log.action === "highlight") {
-            highlight(log.indexA, '#ff9500'); // Orange for compare
+            highlight(log.indexA, '#ff9500');
             highlight(log.indexB, '#ff9500');
         }
         else if (log.action === "swap") {
-            // 1. Perform Smooth Visual Transition
             doVisualSwap(log.indexA, log.indexB);
             
-            // 2. Update JS Mirror immediately so data is correct
             const temp = currentArray[log.indexA];
             currentArray[log.indexA] = currentArray[log.indexB];
             currentArray[log.indexB] = temp;
         }
         else if (log.action === "extract") {
-            // The root was moved to end and popped in logic
             currentArray.pop();
             renderTree(currentArray);
             renderArray(currentArray);
@@ -157,14 +146,7 @@ function animate(logs) {
 
         i++;
         
-        // Wait for animation to finish, THEN Step
         setTimeout(() => {
-            // --- THE FIX ---
-            // Before the next step runs, we force a re-render.
-            // This destroys the old SVG nodes (which are visually swapped but have old IDs)
-            // and creates NEW SVG nodes where node-0 is actually at the top.
-            // Since the visual animation just finished moving them to these spots, 
-            // the user sees no jump, but the DOM is now corrected for the next swap.
             if(log.action === "swap") {
                 renderTree(currentArray);
                 renderArray(currentArray);
@@ -200,13 +182,11 @@ function doVisualSwap(idx1, idx2) {
 
     if(!n1 || !n2) return;
 
-    // SVG Swap
     const t1 = parseTranslate(n1);
     const t2 = parseTranslate(n2);
     n1.style.transform = `translate(${t2.x}px, ${t2.y}px)`;
     n2.style.transform = `translate(${t1.x}px, ${t1.y}px)`;
 
-    // Array Swap (Simple translate x)
     if(c1 && c2) {
         const dist = c2.offsetLeft - c1.offsetLeft;
         c1.style.transform = `translateX(${dist}px)`;

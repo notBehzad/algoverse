@@ -30,11 +30,9 @@ private:
 
     void swapNodes(int i, int j) {
         logs.push_back({"highlight", i, j, "Comparing..."});
-        // Swap memory
         int temp = heap[i];
         heap[i] = heap[j];
         heap[j] = temp;
-        // Log swap
         logs.push_back({"swap", i, j, "Swapping"});
     }
 
@@ -86,7 +84,6 @@ public:
         int lastIndex = heap.size() - 1;
         logs.push_back({"highlight", 0, lastIndex, "Swap Root with Last"});
         
-        // Swap Root and Last manually to record it
         int rootVal = heap[0];
         heap[0] = heap[lastIndex];
         heap[lastIndex] = rootVal;
